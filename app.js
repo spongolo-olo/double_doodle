@@ -696,15 +696,15 @@ function initApp() {
   function compressAndSimplifyStroke(points) {
     if (points.length <= 2) return points;
     // Step 1: Pre-simplify with low radial distance filter to clean up minor noise
-    const preSimplified = simplifyPoints(points, 3);
+    const preSimplified = simplifyPoints(points, 1.5);
     
     // Step 2: Ramer-Douglas-Peucker (RDP) algorithm with dynamic epsilon target
-    let epsilon = 6;
+    let epsilon = 1.5;
     let rdpResult = rdpSimplify(preSimplified, epsilon);
     
-    // Step 3: SMS length budget guard loop (force point count to <= 25)
-    while (rdpResult.length > 18 && epsilon < 100) {
-      epsilon += 3;
+    // Step 3: Budget guard loop (force point count to <= 80 to prevent excessive URL length)
+    while (rdpResult.length > 80 && epsilon < 100) {
+      epsilon += 0.5;
       rdpResult = rdpSimplify(preSimplified, epsilon);
     }
     return rdpResult;
