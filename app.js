@@ -655,6 +655,79 @@ function initApp() {
     return simplified;
   }
 
+  function getSqSegDist(p, p1, p2) {
+    let x = p1.x, y = p1.y, dx = p2.x - x, dy = p2.y - y;
+    if (dx !== 0 || dy !== 0) {
+      const t = ((p.x - x) * dx + (p.y - y) * dy) / (dx * dx + dy * dy);
+      if (t > 1) {
+        x = p2.x;
+        y = p2.y;
+      } else if (t > 0) {
+        x += dx * t;
+        y += dy * t;
+      }
+    }
+    dx = p.x - x;
+    dy = p.y - y;
+    return dx * dx + dy * dy;
+  }
+
+  function rdpSimplify(points, epsilon) {
+    if (points.length <= 2) return points;
+    let maxSqDist = 0;
+    let index = 0;
+    const end = points.length - 1;
+    for (let i = 1; i < end; i++) {
+      const sqDist = getSqSegDist(points[i], points[0], points[end]);
+      if (sqDist > maxSqDist) {
+        index = i;
+        maxSqDist = sqDist;
+      }
+    }
+    if (maxSqDist > epsilon * epsilon) {
+      const results1 = rdpSimplify(points.slice(0, index + 1), epsilon);
+      const results2 = rdpSimplify(points.slice(index), epsilon);
+      return results1.slice(0, results1.length - 1).concat(results2);
+    } else {
+      return [points[0], points[end]];
+    }
+  }
+
+  function compressAndSimplifyStroke(points) {
+    if (points.length <= 2) return points;
+    // Step 1: Pre-simplify with low radial distance filter to clean up minor noise
+    const preSimplified = simplifyPoints(points, 3);
+    
+    // Step 2: Ramer-Douglas-Peucker (RDP) algorithm with dynamic epsilon target
+    let epsilon = 6;
+    let rdpResult = rdpSimplify(preSimplified, epsilon);
+    
+    // Step 3: SMS length budget guard loop (force point count to <= 25)
+    while (rdpResult.length > 18 && epsilon < 100) {
+      epsilon += 3;
+      rdpResult = rdpSimplify(preSimplified, epsilon);
+    }
+    return rdpResult;
+  }
+
+  function shortenURLisGd(longUrl, callback) {
+    const callbackName = 'isgd_callback_' + Math.round(Math.random() * 1000000);
+    window[callbackName] = function(data) {
+      delete window[callbackName];
+      const scriptTag = document.getElementById(callbackName);
+      if (scriptTag && scriptTag.parentNode) {
+        scriptTag.parentNode.removeChild(scriptTag);
+      }
+      if (data && data.shorturl) {
+        callback(data.shorturl);
+      }
+    };
+    const script = document.createElement('script');
+    script.id = callbackName;
+    script.src = 'https://is.gd/create.php?format=jsonp&url=' + encodeURIComponent(longUrl) + '&callback=' + callbackName;
+    document.body.appendChild(script);
+  }
+
   function generateChallengeLink() {
     console.log('generateChallengeLink called');
     if (!p1StrokePointsNormalized || p1StrokePointsNormalized.length === 0) {
@@ -662,8 +735,8 @@ function initApp() {
       return;
     }
 
-    // 1. Simplify points to prevent URL length issues
-    const simplified = simplifyPoints(p1StrokePointsNormalized, 5); // 5 logical units keeps line smooth & compact
+    // 1. Simplify points using Ramer-Douglas-Peucker (RDP) hybrid compression to guarantee SMS friendly link
+    const simplified = compressAndSimplifyStroke(p1StrokePointsNormalized);
     console.log('Simplified points count:', simplified.length, 'from:', p1StrokePointsNormalized.length);
 
     // 2. Serialize to base36 compact coordinate payload
@@ -681,10 +754,27 @@ function initApp() {
     generatedChallengeURL = `${baseUrl}?doodle=${doodlePayload}`;
     console.log('Generated challenge URL successfully:', generatedChallengeURL);
 
-    // 4. Update the input field in UI
+    // 4. Update the input field in UI with compressed URL
     if (shareLinkInput) {
       shareLinkInput.value = generatedChallengeURL;
     }
+
+    // 5. Asynchronously fetch an even shorter is.gd link as a progressive upgrade
+    try {
+      generateShortenedLink(generatedChallengeURL);
+    } catch (e) {
+      console.warn('is.gd shortening setup failed:', e);
+    }
+  }
+
+  function generateShortenedLink(longUrl) {
+    shortenURLisGd(longUrl, function(shortUrl) {
+      console.log('Successfully shortened URL via is.gd:', shortUrl);
+      generatedChallengeURL = shortUrl;
+      if (shareLinkInput) {
+        shareLinkInput.value = shortUrl;
+      }
+    });
   }
 
   function checkIncomingChallenge() {
