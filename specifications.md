@@ -69,7 +69,12 @@
 - [x] **Eliminate Temporal Dead Zone (TDZ) Reference Errors:** Hoisted state variable definitions to the top of `initApp()` to support safe instant-booting into Phase 2 during dynamic URL queries.
 - [x] **Integrate Cache-Busting Mechanism:** Implemented cache-busting on style and script loading to ensure cross-device consistency.
 
-### Phase 4: Database Gallery (Optional Future Goal)
+### Phase 4: Public Live Hosting & Deployment
+- [x] **Create Public Git Repository:** Initialized local Git repository, created a public repository on GitHub via `gh` CLI.
+- [x] **Enable GitHub Pages:** Configured automated Pages deployments on the root folder of the `main` branch.
+- [x] **Live Public Deployment:** Successfully deployed and verified public access.
+
+### Phase 5: Database Gallery (Optional Future Goal)
 - [ ] Integrate a backend service (e.g., Firebase, Supabase, or a custom Node/Python backend) to store Player 1's canvas data.
 - [ ] Implement URL generation for sharing incomplete doodles with friends.
 
@@ -78,5 +83,11 @@
 ## 7. Running the Project Locally
 The web application is active and served locally:
 - **Port:** `8003`
-- **Command:** `python3 -m http.server 8003` (running in background)
+- **Command:** `python3 server.py` (zero-cache Python script running in background)
 - **Log Location:** `/workspace/double_doodle/game_server.log`
+
+---
+
+## 8. Live Public URL
+The web application is hosted publicly and is permanently free to play at:
+👉 **[https://spongolo-olo.github.io/double_doodle/](https://spongolo-olo.github.io/double_doodle/)**
