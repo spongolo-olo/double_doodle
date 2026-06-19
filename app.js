@@ -724,7 +724,7 @@ function initApp() {
     };
     const script = document.createElement('script');
     script.id = callbackName;
-    script.src = 'https://is.gd/create.php?format=jsonp&url=' + encodeURIComponent(longUrl) + '&callback=' + callbackName;
+    script.src = 'https://is.gd/create.php?format=json&url=' + encodeURIComponent(longUrl) + '&callback=' + callbackName;
     document.body.appendChild(script);
   }
 
