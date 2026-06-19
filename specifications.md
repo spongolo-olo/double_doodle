@@ -68,6 +68,8 @@
 - [x] **Clipboard Sync & Toast feedback:** Add native/fallback clipboard integration and CSS notifications for copied states.
 - [x] **Eliminate Temporal Dead Zone (TDZ) Reference Errors:** Hoisted state variable definitions to the top of `initApp()` to support safe instant-booting into Phase 2 during dynamic URL queries.
 - [x] **Integrate Cache-Busting Mechanism:** Implemented cache-busting on style and script loading to ensure cross-device consistency.
+- [x] **Tight SMS Length Budget (under 140-160 characters):** Configured a strict Ramer-Douglas-Peucker (RDP) limit capping coordinates to exactly 18 critical points, compressing the entire Base36 URL below 130 characters so that it never fragments or breaks when sent via SMS or carrier messaging clients.
+- [x] **Progressive URL Shortening Integration (is.gd JSONP):** Implemented client-side JSONP-based automatic link shortening. When copying, the app populates with our 130-char link immediately (fallback) and asynchronously swaps it with a super-short ~19-character is.gd URL within milliseconds, ensuring perfect clickability and SMS delivery.
 
 ### Phase 4: Public Live Hosting & Deployment
 - [x] **Create Public Git Repository:** Initialized local Git repository, created a public repository on GitHub via `gh` CLI.
