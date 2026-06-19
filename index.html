@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Double Doodle</title>
+  <link rel="stylesheet" href="style.css?v=20260619_01">
+  <!-- Friendly font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap" rel="stylesheet">
+
+  <!-- Debug console logger -->
+  <script>
+    window.addEventListener('error', function(e) {
+      var errDiv = document.createElement('div');
+      errDiv.style.position = 'fixed';
+      errDiv.style.bottom = '10px';
+      errDiv.style.left = '10px';
+      errDiv.style.right = '10px';
+      errDiv.style.background = 'rgba(230, 57, 70, 0.95)';
+      errDiv.style.color = '#fff';
+      errDiv.style.padding = '15px';
+      errDiv.style.borderRadius = '8px';
+      errDiv.style.fontFamily = 'monospace';
+      errDiv.style.fontSize = '12px';
+      errDiv.style.zIndex = '999999';
+      errDiv.style.boxShadow = '0 4px 15px rgba(0,0,0,0.3)';
+      errDiv.style.maxHeight = '200px';
+      errDiv.style.overflowY = 'auto';
+      errDiv.innerHTML = '<strong>[JS ERROR]</strong> ' + e.message + ' at ' + e.filename + ':' + e.lineno;
+      document.body.appendChild(errDiv);
+    });
+  </script>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <h1 class="logo">Double Doodle ✏️✨</h1>
+    </header>
+
+    <!-- Main Content Area where screens are swapped -->
+    <main class="app-content">
+      
+      <!-- SCREEN 1: WELCOME SCREEN -->
+      <section id="screen-welcome" class="screen active">
+        <div class="welcome-card card">
+          <div class="intro-illustration">
+            <div class="doodle-preview P1"></div>
+            <div class="doodle-preview P2"></div>
+          </div>
+          <h2>Welcome to Double Doodle!</h2>
+          <p class="description">
+            A collaborative drawing game of imagination and translation. Create unique artwork together!
+          </p>
+          
+          <div class="rules-box">
+            <h3>How to Play:</h3>
+            <ol>
+              <li>
+                <strong class="color-p1">Player 1 (The Initiator):</strong> Picks a line color and draws a single continuous line without lifting their pen/finger to make an abstract starting shape.
+              </li>
+              <li>
+                <strong class="color-p2">Player 2 (The Finisher):</strong> Receives the doodle and uses free strokes, colors, and brushes to turn the shape into a recognizable drawing!
+              </li>
+            </ol>
+          </div>
+          
+          <button id="btn-start-game" class="btn btn-primary btn-large">Start Game</button>
+        </div>
+      </section>
+
+      <!-- SCREEN 2: GAME SCREEN -->
+      <section id="screen-game" class="screen">
+        <div class="game-container">
+          <!-- Game Header / Instructions -->
+          <div class="game-instructions-bar">
+            <div id="p1-instructions" class="instruction-step active">
+              <span class="badge badge-p1">Step 1</span>
+              <span class="instruction-text"><strong>Player 1:</strong> Select a color and draw a single continuous line. Don't lift your finger!</span>
+            </div>
+            <div id="p2-instructions" class="instruction-step">
+              <span class="badge badge-p2">Step 2</span>
+              <span class="instruction-text"><strong>Player 2:</strong> Turn this shape into something recognizable!</span>
+            </div>
+          </div>
+
+          <!-- Canvas Container with high-DPI sizing -->
+          <div class="canvas-wrapper">
+            <canvas id="doodle-canvas"></canvas>
+            <!-- Overlay shown when Player 1 finishes their single stroke -->
+            <div id="p1-finished-overlay" class="canvas-overlay hidden">
+              <div class="overlay-content">
+                <span class="overlay-icon">🔒</span>
+                <p>Stroke locked! Ready to proceed?</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Controls Section -->
+          <div class="game-controls">
+            <!-- Phase 1 Controls (Continuous Line) -->
+            <div id="controls-phase1" class="controls-group active">
+              <!-- Player 1 Color Selector -->
+              <div class="tool-section">
+                <label>Choose your starting line color:</label>
+                <div class="color-palette" id="p1-color-palette">
+                  <button class="color-swatch active" style="background-color: #111111;" data-color="#111111" title="Charcoal"></button>
+                  <button class="color-swatch" style="background-color: #e63946;" data-color="#e63946" title="Red"></button>
+                  <button class="color-swatch" style="background-color: #f77f00;" data-color="#f77f00" title="Orange"></button>
+                  <button class="color-swatch" style="background-color: #fcbf49;" data-color="#fcbf49" title="Yellow"></button>
+                  <button class="color-swatch" style="background-color: #2a9d8f;" data-color="#2a9d8f" title="Green"></button>
+                  <button class="color-swatch" style="background-color: #57cc99;" data-color="#57cc99" title="Light Green"></button>
+                  <button class="color-swatch" style="background-color: #0077b6;" data-color="#0077b6" title="Blue"></button>
+                  <button class="color-swatch" style="background-color: #a2d2ff;" data-color="#a2d2ff" title="Sky Blue"></button>
+                  <button class="color-swatch" style="background-color: #7209b7;" data-color="#7209b7" title="Purple"></button>
+                  <button class="color-swatch" style="background-color: #ff85a2;" data-color="#ff85a2" title="Pink"></button>
+                  <button class="color-swatch" style="background-color: #8d99ae;" data-color="#8d99ae" title="Gray"></button>
+                </div>
+              </div>
+              <div class="p1-buttons-row">
+                <button id="btn-p1-clear" class="btn btn-secondary">Clear & Restart</button>
+                <button id="btn-p1-done" class="btn btn-primary" disabled>Lock & Continue</button>
+              </div>
+            </div>
+
+            <!-- Phase 2 Controls (Free Drawing) -->
+            <div id="controls-phase2" class="controls-group">
+              <!-- Color Selector -->
+              <div class="tool-section">
+                <label>Brush Color:</label>
+                <div class="color-palette" id="p2-color-palette">
+                  <button class="color-swatch" style="background-color: #111111;" data-color="#111111" title="Charcoal"></button>
+                  <button class="color-swatch active" style="background-color: #e63946;" data-color="#e63946" title="Red"></button>
+                  <button class="color-swatch" style="background-color: #f77f00;" data-color="#f77f00" title="Orange"></button>
+                  <button class="color-swatch" style="background-color: #fcbf49;" data-color="#fcbf49" title="Yellow"></button>
+                  <button class="color-swatch" style="background-color: #2a9d8f;" data-color="#2a9d8f" title="Green"></button>
+                  <button class="color-swatch" style="background-color: #57cc99;" data-color="#57cc99" title="Light Green"></button>
+                  <button class="color-swatch" style="background-color: #0077b6;" data-color="#0077b6" title="Blue"></button>
+                  <button class="color-swatch" style="background-color: #a2d2ff;" data-color="#a2d2ff" title="Sky Blue"></button>
+                  <button class="color-swatch" style="background-color: #7209b7;" data-color="#7209b7" title="Purple"></button>
+                  <button class="color-swatch" style="background-color: #ff85a2;" data-color="#ff85a2" title="Pink"></button>
+                  <button class="color-swatch" style="background-color: #8d99ae;" data-color="#8d99ae" title="Gray"></button>
+                  <button class="color-swatch" style="background-color: #ffffff; border: 1px solid #ccc;" data-color="#ffffff" title="White"></button>
+                  <div class="custom-color-picker-wrapper">
+                    <input type="color" id="custom-color-picker" title="Custom Color" value="#e63946">
+                    <span class="picker-label">🎨</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Brush settings & Eraser -->
+              <div class="tool-section tools-row">
+                <div class="brush-size-container">
+                  <label for="brush-size">Size: <span id="brush-size-val">5</span>px</label>
+                  <input type="range" id="brush-size" min="2" max="40" value="5">
+                </div>
+                <div class="utility-buttons">
+                  <button id="btn-toggle-eraser" class="btn btn-outline" title="Eraser Mode">🧽 Eraser</button>
+                  <button id="btn-p2-reset" class="btn btn-secondary" title="Clear your additions, keep Player 1's starting line">Reset Phase 2</button>
+                </div>
+              </div>
+
+              <!-- Phase 2 Action Buttons -->
+              <div class="action-buttons">
+                <button id="btn-p2-done" class="btn btn-primary btn-large">✨ We're Done! See Masterpiece</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: TRANSITION SCREEN (Pass the phone or Share Link) -->
+      <section id="screen-transition" class="screen">
+        <div class="transition-card card">
+          <h2>Next Step! ✨</h2>
+          <p class="description">How would you like to pass your starting doodle to Player 2?</p>
+          
+          <!-- Option A: Pass the Phone -->
+          <div class="transition-path path-local">
+            <div class="path-badge">Option A</div>
+            <h3>Pass the Phone (Local Play)</h3>
+            <div class="animated-phone">
+              <span class="phone-icon">📱</span>
+              <span class="arrow-icon">➡️</span>
+              <span class="phone-icon secondary">📱</span>
+            </div>
+            <p class="path-desc">Hand this device to Player 2. When they are ready to complete the drawing, they can click below:</p>
+            <button id="btn-transition-ready" class="btn btn-primary btn-large">I'm Player 2 & Ready! 🎨</button>
+          </div>
+          
+          <div class="path-separator">
+            <span>OR</span>
+          </div>
+
+          <!-- Option B: Separate Devices -->
+          <div class="transition-path path-remote">
+            <div class="path-badge">Option B</div>
+            <h3>Play on Separate Devices</h3>
+            <div class="share-icon-wrapper">
+              <span class="share-icon">🔗</span>
+            </div>
+            <p class="path-desc">Send a unique invite link to a friend! They can open it on their device to finish your doodle.</p>
+            <div class="share-controls">
+              <div class="share-input-group">
+                <input type="text" id="share-link-input" readonly value="" placeholder="Generating link...">
+                <button id="btn-share-link" class="btn btn-success">Copy 📋</button>
+              </div>
+              <div id="share-toast" class="share-toast hidden">Copied to clipboard! Send it to your friend. 💬</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: RESULT SCREEN -->
+      <section id="screen-result" class="screen">
+        <div class="result-card card">
+          <h2>🎉 Beautiful Collaboration!</h2>
+          <p class="description">You turned an abstract doodle into a unique piece of art.</p>
+          
+          <div class="final-artwork-container">
+            <img id="final-image" alt="Double Doodle Masterpiece">
+          </div>
+          
+          <div class="result-actions">
+            <button id="btn-download" class="btn btn-success btn-large">💾 Download Artwork</button>
+            <button id="btn-restart-all" class="btn btn-primary btn-large">🔄 Play Again</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>Made with love &middot; Double Doodle &copy; 2026</p>
+    </footer>
+  </div>
+
+  <script src="app.js?v=20260619_01"></script>
+</body>
+</html>
