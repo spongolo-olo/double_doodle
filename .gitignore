@@ -1,3 +1,4 @@
 node_modules/
 game_server.log
 .DS_Store
+.spirit_context.json
